@@ -27,7 +27,10 @@
     <br>
     <button @click="()=>$router.push(`/editadministrator/${this.$route.params.id}`)"> Change personal information </button>
     <br>
-    
+    <br>
+    <button @click="logout()">Logout</button>
+    <br>
+
     <br>
     
 
@@ -72,6 +75,7 @@
 
 <script>
 //import PatientService from '../service/PatientService';
+import ClinicCenterAdministratorService from '../service/ClinicCenterAdministratorService';
 import Axios from 'axios';
 export default {
   name: "ListPatients",
@@ -88,7 +92,8 @@ export default {
           city: '',
           state: '',
           phone: 0,
-          validated: true
+          validated: true,
+          poruka: ''
         },
         message: null,
     };
@@ -99,7 +104,7 @@ export default {
         
     },
     refreshAdministrator(){
-        Axios.get('http://localhost:8082/api/clinicalCenterAdministrators/'+ this.$route.params.id).then(response => (this.administrator = response.data))
+        ClinicCenterAdministratorService.retrieveAdministratorInformation(this.$route.params.id).then(response => (this.administrator = response.data))
         /* eslint-disable no-console */
         console.log("**************************")
         if(this.administrator.id == 1){
@@ -115,13 +120,17 @@ export default {
     Axios.put('http://localhost:8082/api/patients/rejectPatient/' + index + "/" + message)
     this.refreshPatients();
 
-  },
-  acceptPatient(index){
-    /* eslint-disable no-console */
-    console.log('Prihvatanje pacijenta' + index);
-    Axios.get('http://localhost:8082/api/patients/accept/' + index)
-    this.refreshPatients();
-  }
+    },
+    acceptPatient(index){
+      /* eslint-disable no-console */
+      console.log('Prihvatanje pacijenta' + index);
+      Axios.get('http://localhost:8082/api/patients/accept/' + index)
+      this.refreshPatients();
+    },
+    logout(){
+      localStorage.removeItem('token');
+      this.$router.push('/');
+    }
   },
   created() {
     this.refreshPatients();

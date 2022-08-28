@@ -1,8 +1,10 @@
 package jpa.controller;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -10,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,13 +24,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jpa.dto.ClinicalAdministratorDTO;
-import jpa.dto.ClinicalCenterAdministratorDTO;
-import jpa.modeli.Clinic;
-import jpa.modeli.ClinicalAdministrator;
-import jpa.modeli.ClinicalCenterAdministrator;
+import jpa.model.Authority;
+import jpa.model.Clinic;
+import jpa.model.ClinicalAdministrator;
+import jpa.model.User;
+import jpa.security.TokenUtils;
+import jpa.service.AuthorityService;
 import jpa.service.ClinicService;
 import jpa.service.ClinicalAdministratorService;
 import jpa.service.EmailService;
+import jpa.service.UserService;
 
 @RestController
 @CrossOrigin(origins = { "http://localhost:3000", "http://localhost:4200", "http://localhost:8080" },allowCredentials= "true")
@@ -45,6 +51,15 @@ public class ClinicalAdministratorController {
 	@Autowired
 	private ClinicService clinicService;
 	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private AuthorityService authService;
+	
+	@Autowired
+	private TokenUtils tokenUtils;
+	
 	@GetMapping(value = "/all")
 	public ResponseEntity<List<ClinicalAdministratorDTO>> getAllAdministrators() {
 
@@ -59,6 +74,15 @@ public class ClinicalAdministratorController {
 		return new ResponseEntity<>(clinicDTO, HttpStatus.OK);
 	}
 	
+	@GetMapping(value = "/getClinicalAdministrator", produces = "application/json")
+	public ResponseEntity<ClinicalAdministratorDTO> getClinicalAdministrator(HttpServletRequest request) {
+		String jwtToken = this.tokenUtils.getToken(request);
+		String username = tokenUtils.getUsernameFromToken(jwtToken);
+		
+		ClinicalAdministrator clinicalAdministrator = service.findOneByEmail(username);
+		ClinicalAdministratorDTO clinicalAdministratorDTO = new ClinicalAdministratorDTO(clinicalAdministrator);
+		return new ResponseEntity<>(clinicalAdministratorDTO, HttpStatus.OK);
+	}
 
 	@GetMapping(value="/login/{id}")
 	public ResponseEntity<ClinicalAdministratorDTO> loginDoctor(@PathVariable Long id, HttpSession Session){
@@ -74,6 +98,7 @@ public class ClinicalAdministratorController {
 		return new ResponseEntity<>(new ClinicalAdministratorDTO(admin),HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasRole('CLINICAL_ADMIN')")
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<ClinicalAdministratorDTO> getAdministrators(@PathVariable Long id) {
 
@@ -97,6 +122,12 @@ public class ClinicalAdministratorController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
+		User existUser = this.userService.findByUsername(adminDTO.getEmail());
+		if(existUser != null) {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
+	
+		
 		Clinic clinic = clinicService.findOne(adminDTO.getClinic().getId());
 		
 		ClinicalAdministrator admin = new ClinicalAdministrator();
@@ -112,10 +143,21 @@ public class ClinicalAdministratorController {
 		admin.setClinic(clinic);;
 		
 		System.out.println("********* Prosledjeno ime administratora: " + adminDTO.getName()+ " ***************");
-
-
 		
 		admin = service.save(admin);
+		
+		User newUser = new User();
+		newUser.setName(adminDTO.getName());
+		newUser.setSurname(adminDTO.getSurname());
+		newUser.setUsername(adminDTO.getEmail());
+		newUser.setPassword(adminDTO.getPassword());
+		newUser.setEnabled(true);
+		newUser.setLastPasswordResetDate(new Timestamp((new java.util.Date()).getTime()));
+		newUser.setRole("clinical_admin");
+		List<Authority> auths = authService.findByName("ROLE_CLINICAL_ADMIN");
+		newUser.setAuthorities(auths);
+		newUser.setClinicalAdministrator(admin);
+		this.userService.save(newUser);
 		
 		List<ClinicalAdministrator> administratoriIzBaze = service.findAll();
 		long id = 0;

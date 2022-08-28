@@ -3,7 +3,9 @@ import axios from "axios";
 class NurseService{
 
     retrieveNurse(id){
-        return axios.get(`http://localhost:8082/api/nurses/${id}`, {withCredentials: true});
+        return axios({url: 'http://localhost:8082/api/nurses/' + id, 
+                    method: 'GET',
+                    headers: {'Authorization': 'Bearer ' + localStorage.getItem('token')}});
     }
 
     editNurse(nurse){

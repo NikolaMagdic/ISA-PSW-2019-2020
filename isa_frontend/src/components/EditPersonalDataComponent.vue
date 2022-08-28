@@ -147,7 +147,7 @@ export default {
       this.city = response.data.city;
       this.state = response.data.state;
       this.phone = response.data.phone;
-      this.lbo = response.data.phone;
+      this.lbo = response.data.lbo;
      });
 
     

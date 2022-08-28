@@ -3,7 +3,7 @@ import axios from "axios";
 
 class DoctorService {
   retrieveAllDoctors() {
-    return axios.get(`http://localhost:8082/api/doctors/all`,{withCredentials: true});
+    return axios.get(`http://localhost:8082/api/doctors/all`);
   }
 
   deleteDoctor(id){
@@ -11,7 +11,7 @@ class DoctorService {
   }
 
   retrieveDoctor(id){
-    return axios.get(`http://localhost:8082/api/doctors/${id}`,{withCredentials: true});
+    return axios.get(`http://localhost:8082/api/doctors/${id}`);
   }
 
   editDoctor(doctor){
@@ -21,7 +21,9 @@ class DoctorService {
       return  axios.get('http://localhost:8082/api/clinics/getDoctors/' + id,{withCredentials: true})
   }
   retrieveAllDoctorsWherePatientWas() {
-    return axios.get("http://localhost:8082/api/doctors/allDoctorsOfPatient", {withCredentials: true});
+    return axios({method: "GET",
+                  url: "http://localhost:8082/api/doctors/allDoctorsOfPatient",
+                  headers: {'Authorization': 'Bearer ' + localStorage.getItem('token')}});
   }
 
 }

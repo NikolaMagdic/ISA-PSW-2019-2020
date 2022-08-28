@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import jpa.modeli.MedicalRoom;
+import jpa.model.MedicalRoom;
 
 public interface MedicalRoomRepository extends JpaRepository<MedicalRoom, Long>{
 

@@ -52,6 +52,7 @@
 
 <script>
 import Axios from 'axios';
+import ClinicAdministratorService from '../service/ClinicAdministratorService';
 export default {
   name: "EnterClinicalCenterAdministrator",
   data() {
@@ -98,7 +99,7 @@ export default {
     
     },
     refreshInformation(){
-        Axios.get(`http://localhost:8082/api/clinicalAdministrators/${this.id}`).then(response =>{
+       ClinicAdministratorService.retrieveAdministratorInformation(this.id).then(response =>{
             this.name = response.data.name;
             this.surname = response.data.surname;
             this.email = response.data.email;

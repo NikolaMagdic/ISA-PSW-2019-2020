@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import jpa.modeli.Clinic;
+import jpa.model.Clinic;
 
 public interface ClinicRepository extends JpaRepository<Clinic, Long>{
 

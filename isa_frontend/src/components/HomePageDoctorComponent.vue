@@ -7,6 +7,8 @@
         <li><router-link :to="{name: 'addabsencerequest', params: {id: this.id}}">Create new absence request</router-link></li>
         <li><router-link :to="{name: 'editdoctor', params: { id: this.id }}">See personal profile</router-link></li>
         <li><router-link to="/addexamination">Schedule new examination</router-link></li>
+        <!--Ovo ne bi radilo u Vue verziji 3, ali ovde radi jer je 2-->
+        <li class="logout"><router-link @click.native="logout" to="/logout">Logout</router-link></li>
       </ul>
     <div class="container">
       <br/>
@@ -71,6 +73,10 @@ export default {
 
       minuti = Math.round((sat - satCeo)*60);
       return satCeo + "h " + minuti + "min";
+    },
+    logout() {
+      localStorage.removeItem('token');
+      this.$router.push('/');
     }
   },
   computed: {
@@ -107,6 +113,10 @@ li a:hover {
   background-color: rgb(10, 78, 14);
   text-decoration: none;
   color: white;
+}
+
+li.logout {
+  float: right;
 }
 
 </style>

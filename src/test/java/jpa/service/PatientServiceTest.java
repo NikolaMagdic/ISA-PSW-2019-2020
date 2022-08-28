@@ -26,7 +26,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import jpa.modeli.Examination;
+import jpa.model.Examination;
 import jpa.repository.ExaminationRepository;
 
 @RunWith(SpringRunner.class)

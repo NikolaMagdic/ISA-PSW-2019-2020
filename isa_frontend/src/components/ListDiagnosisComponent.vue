@@ -43,6 +43,7 @@ export default {
   data() {
     return {
         diagnosis: [],
+        name: "",
         message: null,
         INSTRUCTOR: "all"
     };

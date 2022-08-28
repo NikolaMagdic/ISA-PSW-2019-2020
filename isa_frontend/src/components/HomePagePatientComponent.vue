@@ -1,4 +1,3 @@
-import axios from "axios";
 Vue.use(Vuelidate);
 <template>
   <div class="container">
@@ -70,6 +69,7 @@ Vue.use(Vuelidate);
                 <button class="btn btn-success" type="submit">History of appointments</button>
 
       </form>
+      <button class="btn btn-success" v-on:click="logout()">Logout</button>
     </div>
 
     
@@ -167,10 +167,11 @@ export default {
       },history(e){
         e.preventDefault();
         this.$router.push('/patientExaminations') 
+      },
+      logout(){
+        localStorage.removeItem('token');
+        this.$router.push('/');
       }
-
-
-  
   },
  
   created() {

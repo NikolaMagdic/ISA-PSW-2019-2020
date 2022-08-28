@@ -71,7 +71,7 @@ export default {
             e.preventDefault();
         },
         getPatient(){
-            PatientService.retrievePatient(this.id).then(response =>{
+            PatientService.retrievePatientNormal(this.id).then(response =>{
                 this.name = response.data.name;
                 this.surname = response.data.surname;
                 this.email = response.data.email;

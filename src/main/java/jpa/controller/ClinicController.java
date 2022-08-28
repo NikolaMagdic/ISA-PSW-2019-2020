@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,15 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 import jpa.dto.ClinicDTO;
 import jpa.dto.DoctorDTO;
 import jpa.dto.MedicalRoomDTO;
-import jpa.dto.PatientDTO;
-import jpa.modeli.Clinic;
-import jpa.modeli.Doctor;
-import jpa.modeli.Examination;
-import jpa.modeli.MedicalRoom;
-import jpa.modeli.Patient;
+import jpa.model.Clinic;
+import jpa.model.Doctor;
+import jpa.model.Examination;
+import jpa.model.MedicalRoom;
+import jpa.model.Patient;
+import jpa.security.TokenUtils;
 import jpa.service.ClinicService;
 import jpa.service.ExaminationService;
-
 import jpa.service.PatientService;
 
 @RestController
@@ -48,10 +49,13 @@ public class ClinicController {
 	private ExaminationService examinationService;
 	@Autowired
 	private PatientService patientService;
+	@Autowired
+	private TokenUtils tokenUtils;
+	
+	@PreAuthorize("hasAnyRole('PATIENT', 'CLINICAL_CENTER_ADMIN')")
 	@GetMapping(value = "/all")
-	public ResponseEntity<List<ClinicDTO>> getAllClinics(HttpSession Session) {
-		System.out.println(Session.getAttribute("role"));
-		if(Session.getAttribute("role").equals("PATIENT")){ //izmeni da mogu da doprem i kada sam administrator
+	public ResponseEntity<List<ClinicDTO>> getAllClinics() {
+		 
 		List<Clinic> clinics = clinicService.findAll();
 
 		// convert clinics to DTOs
@@ -62,23 +66,24 @@ public class ClinicController {
 		}
 		
 		return new ResponseEntity<>(clinicDTO, HttpStatus.OK);
-		}else{
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+		
 	}
 	
+	@PreAuthorize("hasRole('PATIENT')") //izmeni da mogu da doprem i kada sam administrator
 	@GetMapping(value = "/allClinicsOfPatient")
-	public ResponseEntity<List<ClinicDTO>> getAllClinicsPatientHasBeen(HttpSession Session) {
+	public ResponseEntity<List<ClinicDTO>> getAllClinicsPatientHasBeen(HttpServletRequest request) {
+		 
+		String jwtToken = this.tokenUtils.getToken(request);
+		String username = tokenUtils.getUsernameFromToken(jwtToken);
 		
-		if(Session.getAttribute("role").equals("PATIENT")){ //izmeni da mogu da doprem i kada sam administrator
 		List<Examination> examinations = examinationService.findAll();
-		Patient p = patientService.findOne((Long)Session.getAttribute("id"));
+		Patient p = patientService.findOneByEmail(username);
 		// convert clinics to DTOs
 		List<ClinicDTO> clinicDTO = new ArrayList<>();
 		
 		for (Examination e : examinations) {
 			if(e.getPatient()!=null){
-			if(e.getPatient().getId()==((Long)Session.getAttribute("id"))){
+			if(e.getPatient().getId()==(p.getId())){
 				boolean vecPostoji = false;
 				for(ClinicDTO cDTO : clinicDTO){
 					if(cDTO.getId() == e.getClinic().getId()){
@@ -98,18 +103,15 @@ public class ClinicController {
 		}
 	
 		return new ResponseEntity<>(clinicDTO, HttpStatus.OK);
-		}else{
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+
 	}
 	
 	
+	@PreAuthorize("hasRole('PATIENT')")
 	@GetMapping(value = "/allFiltered/{date}/{type}")
-	public ResponseEntity<List<ClinicDTO>> getAllFilteredClinics(@PathVariable Date date,@PathVariable String type,HttpSession Session) {
-		System.out.println(Session.getAttribute("role"));
-		if(Session.getAttribute("role").equals("PATIENT")){
+	public ResponseEntity<List<ClinicDTO>> getAllFilteredClinics(@PathVariable Date date, @PathVariable String type) {
 		
-			List<Clinic> clinics = clinicService.findAll();
+		List<Clinic> clinics = clinicService.findAll();
 
 		// convert clinics to DTOs
 		List<ClinicDTO> clinicDTO = new ArrayList<>();
@@ -137,15 +139,13 @@ public class ClinicController {
 					clinicDTO.add(new ClinicDTO(c));
 					nasao_kliniku=true;
 				}
-				}
+			}
 			
 			
 		}
 		
 		return new ResponseEntity<>(clinicDTO, HttpStatus.OK);
-		}else{
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+		
 	}
 /*	@GetMapping(value = "/filter/{date}/{type}")
 	public ResponseEntity<List<ClinicDTO>> getFiltered(@PathVariable Date date,@PathVariable String type,HttpSession Session) {

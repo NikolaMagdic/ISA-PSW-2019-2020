@@ -21,12 +21,12 @@ import jpa.dto.ExaminationDTO;
 
 import jpa.dto.PatientDTO;
 import jpa.dto.PrescriptionDTO;
-import jpa.modeli.Examination;
-import jpa.modeli.ExaminationReport;
-import jpa.modeli.ExaminationType;
-import jpa.modeli.Nurse;
-import jpa.modeli.Patient;
-import jpa.modeli.Prescription;
+import jpa.model.Examination;
+import jpa.model.ExaminationReport;
+import jpa.model.ExaminationType;
+import jpa.model.Nurse;
+import jpa.model.Patient;
+import jpa.model.Prescription;
 import jpa.service.NurseService;
 import jpa.service.PrescriptionService;
 

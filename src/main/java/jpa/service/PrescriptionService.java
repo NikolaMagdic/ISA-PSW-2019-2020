@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import jpa.modeli.Nurse;
-import jpa.modeli.Prescription;
+import jpa.model.Nurse;
+import jpa.model.Prescription;
 import jpa.repository.PrescriptionRepository;
 
 @Service

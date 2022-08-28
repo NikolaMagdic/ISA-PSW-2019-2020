@@ -1,6 +1,6 @@
 package jpa.dto;
 
-import jpa.modeli.ExaminationType;
+import jpa.model.ExaminationType;
 
 public class ExaminationTypeDTO {
 

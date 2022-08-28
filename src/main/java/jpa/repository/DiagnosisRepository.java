@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import jpa.modeli.Diagnosis;
-import jpa.modeli.Patient;
+import jpa.model.Diagnosis;
+import jpa.model.Patient;
 
 
 public interface DiagnosisRepository extends JpaRepository<Diagnosis, Long>{

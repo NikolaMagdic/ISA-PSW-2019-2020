@@ -21,12 +21,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jpa.dto.DiagnosisDTO;
-import jpa.modeli.Diagnosis;
+import jpa.model.Diagnosis;
 import jpa.service.DiagnosisService;
 
 
 import jpa.dto.DiagnosisDTO;
-import jpa.modeli.Diagnosis;
 import jpa.service.DiagnosisService;
 
 @RestController

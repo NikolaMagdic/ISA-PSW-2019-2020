@@ -1,12 +1,12 @@
 package jpa.controller;
 
 import java.sql.Date;
-import java.time.LocalDate;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -16,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,18 +27,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jpa.dto.AbsenceRequestDTO;
-import jpa.dto.ClinicDTO;
 import jpa.dto.DoctorDTO;
-import jpa.dto.MedicalRoomDTO;
 import jpa.dto.OccupationDTO;
-import jpa.dto.PatientDTO;
-import jpa.modeli.AbsenceRequest;
-import jpa.modeli.Clinic;
-import jpa.modeli.Doctor;
-import jpa.modeli.Examination;
-import jpa.modeli.MedicalRoom;
-import jpa.modeli.Occupation;
-import jpa.modeli.Patient;
+import jpa.model.AbsenceRequest;
+import jpa.model.Authority;
+import jpa.model.Clinic;
+import jpa.model.Doctor;
+import jpa.model.Examination;
+import jpa.model.MedicalRoom;
+import jpa.model.Occupation;
+import jpa.model.Patient;
+import jpa.model.User;
+import jpa.security.TokenUtils;
+import jpa.service.AuthorityService;
 import jpa.service.ClinicService;
 import jpa.service.DoctorService;
 import jpa.service.EmailService;
@@ -46,10 +47,10 @@ import jpa.service.ExaminationService;
 import jpa.service.MedicalRoomService;
 import jpa.service.OccupationService;
 import jpa.service.PatientService;
+import jpa.service.UserService;
 
 @EnableScheduling
 @RestController
-@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:4200", "http://localhost:8080"}, allowCredentials= "true")
 @RequestMapping(value = "api/doctors")
 public class DoctorController {
 
@@ -73,6 +74,15 @@ public class DoctorController {
 	
 	@Autowired
 	private OccupationService occupationService;
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private AuthorityService authService;
+	
+	@Autowired
+	private TokenUtils tokenUtils;
 	
 	private Logger logger = LoggerFactory.getLogger(DoctorController.class);
 	
@@ -101,6 +111,17 @@ public class DoctorController {
 		Session.setAttribute("id", id);
 		
 		return new ResponseEntity<>(new DoctorDTO(doctor),HttpStatus.OK);
+	}
+
+	@PreAuthorize("hasRole('DOCTOR')")
+	@GetMapping(value = "/get-doctor", produces = "application/json")
+	public ResponseEntity<DoctorDTO> getDoctor(HttpServletRequest request) {
+		String jwtToken = this.tokenUtils.getToken(request);
+		String username = tokenUtils.getUsernameFromToken(jwtToken);
+		
+		Doctor doctor = doctorService.findOneByEmail(username);
+		DoctorDTO doctorDTO = new DoctorDTO(doctor);
+		return new ResponseEntity<>(doctorDTO, HttpStatus.OK);
 	}
 	
 	// prima id od examinationa za koji bi trebalo da se vezu sale
@@ -137,20 +158,22 @@ public class DoctorController {
 		return new ResponseEntity<>(doctorsDTO, HttpStatus.OK);
 	}
 	
-	
+	@PreAuthorize("hasRole('PATIENT')") //izmeni da mogu da doprem i kada sam administrator
 	@GetMapping(value = "/allDoctorsOfPatient")
-	public ResponseEntity<List<DoctorDTO>> getAllDoctorsPatientHasBeen(HttpSession Session) {
+	public ResponseEntity<List<DoctorDTO>> getAllDoctorsPatientHasBeen(HttpServletRequest request) {
 		System.out.println("DOKTORIIIII");
-		if(Session.getAttribute("role").equals("PATIENT")){ //izmeni da mogu da doprem i kada sam administrator
+		String jwtToken = this.tokenUtils.getToken(request);
+		String username = tokenUtils.getUsernameFromToken(jwtToken);
+		
 		List<Examination> examinations = examinationService.findAll();
-		Patient p = patientService.findOne((Long)Session.getAttribute("id"));
-	
-		// convert clinics to DTOs
+		Patient p = patientService.findOneByEmail(username);
+		Long idOfPatient = p.getId();
+		
 		List<DoctorDTO> doctorDTO = new ArrayList<>();
 		
 		for (Examination e : examinations) {
-			if(e.getPatient()!=null){
-			if(e.getPatient().getId()==((Long)Session.getAttribute("id"))){
+			if(e.getPatient() != null){
+			if(e.getPatient().getId() == (idOfPatient)){
 				boolean vecPostoji = false;
 				for(DoctorDTO dDTO : doctorDTO){
 					if(dDTO.getId() == e.getClinic().getId()){
@@ -171,9 +194,7 @@ public class DoctorController {
 		}
 	
 		return new ResponseEntity<>(doctorDTO, HttpStatus.OK);
-		}else{
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+
 	}
 
 	// proveri detaljno da li radi kako treba
@@ -361,11 +382,11 @@ public class DoctorController {
 	
 	
 	
-	@GetMapping(value = "/{id}")
+	@GetMapping(value = "/{id}", produces = "application/json")
 	public ResponseEntity<DoctorDTO> getDoctor(@PathVariable Long id) {
 
 		Doctor doctor = doctorService.findOne(id);
-
+		
 		// doctor must exist
 		if (doctor == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -387,6 +408,11 @@ public class DoctorController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
+		User existUser = this.userService.findByUsername(doctorDTO.getEmail());
+		if(existUser != null) {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
+	
 		Doctor doctor = new Doctor();
 		doctor.setId(222L);
 		doctor.setName(doctorDTO.getName());
@@ -402,6 +428,21 @@ public class DoctorController {
 		doctor.setClinic(clinic);
 		
 		doctor = doctorService.save(doctor);
+		
+		User newUser = new User();
+		newUser.setName(doctorDTO.getName());
+		newUser.setSurname(doctorDTO.getSurname());
+		newUser.setUsername(doctorDTO.getEmail());
+		newUser.setPassword(doctorDTO.getPassword());
+		newUser.setEnabled(true);
+		newUser.setLastPasswordResetDate(new Timestamp((new java.util.Date()).getTime()));
+		newUser.setRole("doctor");
+		List<Authority> auths = authService.findByName("ROLE_DOCTOR");
+		newUser.setAuthorities(auths);
+		newUser.setDoctor(doctor);
+		
+		this.userService.save(newUser);
+		
 		return new ResponseEntity<>(new DoctorDTO(doctor), HttpStatus.CREATED);
 	}
 

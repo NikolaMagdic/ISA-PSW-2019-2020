@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jpa.dto.OccupationDTO;
-import jpa.modeli.Diagnosis;
-import jpa.modeli.Occupation;
+import jpa.model.Diagnosis;
+import jpa.model.Occupation;
 import jpa.service.OccupationService;
 
 @RestController

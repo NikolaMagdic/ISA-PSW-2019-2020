@@ -14,7 +14,17 @@ class PatientService {
   }
 
   retrievePatient(){
-    return axios.get(`http://localhost:8082/api/patients//loggedPatient`, {withCredentials: true});
+    return axios({method: "GET",
+                  url: `http://localhost:8082/api/patients/loggedPatient`,
+                  headers: {'Authorization': 'Bearer ' + localStorage.getItem('token')}
+            });
+  }
+
+  updateMedicalRecord(record) {
+    return axios({method: "PUT",
+                  url: `http://localhost:8082/api/patients/updateMedicalRedord`,
+                  data: record
+            });
   }
 }
 

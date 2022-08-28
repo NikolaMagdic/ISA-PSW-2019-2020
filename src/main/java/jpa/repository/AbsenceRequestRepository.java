@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import jpa.modeli.AbsenceRequest;
+import jpa.model.AbsenceRequest;
 
 public interface AbsenceRequestRepository extends JpaRepository<AbsenceRequest, Long>{
 

@@ -1,6 +1,6 @@
 package jpa.dto;
 
-import jpa.modeli.Prescription;
+import jpa.model.Prescription;
 
 public class PrescriptionDTO {
 	private Long id;

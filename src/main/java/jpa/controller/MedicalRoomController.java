@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jpa.dto.MedicalRoomDTO;
-import jpa.modeli.Clinic;
-import jpa.modeli.Examination;
-import jpa.modeli.MedicalRoom;
-import jpa.modeli.Occupation;
+import jpa.model.Clinic;
+import jpa.model.Examination;
+import jpa.model.MedicalRoom;
+import jpa.model.Occupation;
 import jpa.service.ClinicService;
 import jpa.service.ExaminationService;
 import jpa.service.MedicalRoomService;

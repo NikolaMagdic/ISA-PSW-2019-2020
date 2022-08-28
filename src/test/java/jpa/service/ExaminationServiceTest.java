@@ -17,8 +17,8 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import jpa.modeli.Examination;
-import jpa.modeli.Patient;
+import jpa.model.Examination;
+import jpa.model.Patient;
 import jpa.repository.ExaminationRepository;
 import jpa.repository.PatientRepository;
 

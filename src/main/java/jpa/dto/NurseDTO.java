@@ -1,6 +1,6 @@
 package jpa.dto;
 
-import jpa.modeli.Nurse;
+import jpa.model.Nurse;
 
 public class NurseDTO {
 

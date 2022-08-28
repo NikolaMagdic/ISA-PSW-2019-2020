@@ -9,12 +9,12 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-import jpa.modeli.ClinicalAdministrator;
-import jpa.modeli.ClinicalCenterAdministrator;
-import jpa.modeli.Doctor;
-import jpa.modeli.Examination;
-import jpa.modeli.Nurse;
-import jpa.modeli.Patient;
+import jpa.model.ClinicalAdministrator;
+import jpa.model.ClinicalCenterAdministrator;
+import jpa.model.Doctor;
+import jpa.model.Examination;
+import jpa.model.Nurse;
+import jpa.model.Patient;
 
 
 

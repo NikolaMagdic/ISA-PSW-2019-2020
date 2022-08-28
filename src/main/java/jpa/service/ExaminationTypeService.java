@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import jpa.modeli.ExaminationType;
+import jpa.model.ExaminationType;
 import jpa.repository.ExaminationTypeRepository;
 
 @Service

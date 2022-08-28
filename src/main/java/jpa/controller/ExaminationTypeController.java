@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jpa.dto.ExaminationDTO;
 import jpa.dto.ExaminationTypeDTO;
-import jpa.modeli.Examination;
-import jpa.modeli.ExaminationType;
+import jpa.model.Examination;
+import jpa.model.ExaminationType;
 import jpa.service.ExaminationTypeService;
 
 @RestController

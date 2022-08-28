@@ -3,6 +3,7 @@ package jpa.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,11 +23,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jpa.dto.AbsenceRequestDTO;
-import jpa.dto.ClinicalAdministratorDTO;
 import jpa.dto.NurseDTO;
-import jpa.modeli.AbsenceRequest;
-import jpa.modeli.ClinicalAdministrator;
-import jpa.modeli.Nurse;
+import jpa.model.AbsenceRequest;
+import jpa.model.Nurse;
+import jpa.security.TokenUtils;
 import jpa.service.EmailService;
 import jpa.service.NurseService;
 
@@ -39,6 +40,9 @@ public class NurseContoller {
 	
 	@Autowired
 	private EmailService emailService;
+	
+	@Autowired
+	private TokenUtils tokenUtils;
 	
 	private Logger logger = LoggerFactory.getLogger(NurseContoller.class);
 	
@@ -56,6 +60,16 @@ public class NurseContoller {
 		return new ResponseEntity<>(nursesDTO, HttpStatus.OK);
 	}
 	
+	@GetMapping(value = "/get-nurse", produces = "application/json")
+	public ResponseEntity<NurseDTO> getNurse(HttpServletRequest request) {
+		String jwtToken = this.tokenUtils.getToken(request);
+		String username = tokenUtils.getUsernameFromToken(jwtToken);
+		
+		Nurse nurse = nurseService.findOneByEmail(username);
+		NurseDTO nurseDTO = new NurseDTO(nurse);
+		return new ResponseEntity<>(nurseDTO, HttpStatus.OK);
+	}
+	
 	@GetMapping(value="/login/{id}")
 	public ResponseEntity<NurseDTO> loginNurse(@PathVariable Long id, HttpSession session){
 
@@ -71,20 +85,13 @@ public class NurseContoller {
 		return new ResponseEntity<>(new NurseDTO(nurse),HttpStatus.OK);
 	}
 	
-	
+	@PreAuthorize("hasRole('NURSE')")
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<NurseDTO> getNurse(@PathVariable Long id, HttpSession session) {
-
-		if( !(session.getAttribute("role").equals("NURSE") || session.getAttribute("role").equals("DOCTOR") 
-				|| session.getAttribute("role").equals("PATIENT") || session.getAttribute("role").equals("CLINICALADMINISTRATOR") 
-				|| session.getAttribute("role").equals("CLINICALCENTERADMINISTRATOR") )) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-		
+	public ResponseEntity<NurseDTO> getNurse(@PathVariable Long id) {
 		
 		Nurse nurse = nurseService.findOne(id);
 
-		// doctor must exist
+		// nurse must exist
 		if (nurse == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}

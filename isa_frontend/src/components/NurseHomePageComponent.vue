@@ -36,6 +36,7 @@
         </fieldset>
         <button v-on:click="editNurseClicked()">Change personal information</button>
         <button v-on:click="createAbsenceRequestClicked()">Create absence request</button>
+        <button v-on:click="logout()">Logout</button>
     </div>
 
     <h3>All non validated prescriptions</h3>
@@ -62,7 +63,7 @@
                 Delete
               </button>
             </td>
-            
+
           </tr>
         </tbody>
       </table>
@@ -76,6 +77,7 @@
 
 <script>
 import Axios from 'axios';
+import NurseService from '../service/NurseService';
 export default {
   name: "NurseHomePage",
   data() {
@@ -85,28 +87,33 @@ export default {
     };
   },
   methods: {
-  refreshNurse(){
-    Axios.get('http://localhost:8082/api/nurses/' + this.$route.params.id, {withCredentials: true}).then(response => (this.sestra = response.data))
-  },
-   refreshPrescriptions(){
-    Axios.get('http://localhost:8082/api/prescriptions/nonAccepted').then(response => (this.nonValidated = response.data))
-  },
-  deletePrescription(index){
-    Axios.delete('http://localhost:8082/api/prescriptions/' + index)
-    this.refreshPrescriptions
-    this.$forceUpdate();
-  },
-  validatePrescription(index){
-    Axios.get('http://localhost:8082/api/prescriptions/validate/' + index +'/'+ this.$route.params.id)
-    this.refreshPrescriptions
-    this.$forceUpdate();
-  },
-  editNurseClicked(){
-    this.$router.push(`/editnurse/${this.$route.params.id}`, {withCredentials: true});
-  },
-  createAbsenceRequestClicked(){
-    this.$router.push(`/addabsencerequestnurse/${this.$route.params.id}`);
-  }
+    refreshNurse(){
+        NurseService.retrieveNurse(this.$route.params.id)
+                  .then(response => (this.sestra = response.data));
+    },
+    refreshPrescriptions(){
+      Axios.get('http://localhost:8082/api/prescriptions/nonAccepted').then(response => (this.nonValidated = response.data))
+    },
+    deletePrescription(index){
+      Axios.delete('http://localhost:8082/api/prescriptions/' + index)
+      this.refreshPrescriptions
+      this.$forceUpdate();
+    },
+    validatePrescription(index){
+      Axios.get('http://localhost:8082/api/prescriptions/validate/' + index +'/'+ this.$route.params.id)
+      this.refreshPrescriptions
+      this.$forceUpdate();
+    },
+    editNurseClicked(){
+      this.$router.push(`/editnurse/${this.$route.params.id}`, {withCredentials: true});
+    },
+    createAbsenceRequestClicked(){
+      this.$router.push(`/addabsencerequestnurse/${this.$route.params.id}`);
+    },
+    logout() {
+      localStorage.removeItem('token');
+      this.$router.push('/');
+    }
 
   },
   created() {

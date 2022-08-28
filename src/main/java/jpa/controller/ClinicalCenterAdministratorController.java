@@ -1,18 +1,20 @@
 package jpa.controller;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,21 +23,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-
-import jpa.dto.ClinicDTO;
 import jpa.dto.ClinicalCenterAdministratorDTO;
-import jpa.dto.DoctorDTO;
-import jpa.modeli.Clinic;
-import jpa.modeli.ClinicalCenterAdministrator;
-import jpa.modeli.Doctor;
+import jpa.model.Authority;
+import jpa.model.ClinicalCenterAdministrator;
+import jpa.model.User;
+import jpa.security.TokenUtils;
+import jpa.service.AuthorityService;
 import jpa.service.ClinicalCenterAdministratorService;
 import jpa.service.EmailService;
+import jpa.service.UserService;
 
 @RestController
 @CrossOrigin(origins = { "http://localhost:3000", "http://localhost:4200", "http://localhost:8080" },allowCredentials= "true")
@@ -47,6 +45,15 @@ public class ClinicalCenterAdministratorController {
 	
 	@Autowired
 	private ClinicalCenterAdministratorService service;
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private AuthorityService authService;
+	
+	@Autowired
+	private TokenUtils tokenUtils;
 	
 	@GetMapping(value = "/all")
 	public ResponseEntity<List<ClinicalCenterAdministratorDTO>> getAllAdministrators() {
@@ -60,6 +67,16 @@ public class ClinicalCenterAdministratorController {
 		}
 
 		return new ResponseEntity<>(clinicDTO, HttpStatus.OK);
+	}
+	
+	@GetMapping(value = "/getClinicalCenterAdministrator", produces = "application/json")
+	public ResponseEntity<ClinicalCenterAdministratorDTO> getClinicalCenterAdministrator(HttpServletRequest request) {
+		String jwtToken = this.tokenUtils.getToken(request);
+		String username = tokenUtils.getUsernameFromToken(jwtToken);
+		
+		ClinicalCenterAdministrator clinicalCenterAdministrator = service.findOneByEmail(username);
+		ClinicalCenterAdministratorDTO clinicalCenterAdministratorDTO = new ClinicalCenterAdministratorDTO(clinicalCenterAdministrator);
+		return new ResponseEntity<>(clinicalCenterAdministratorDTO, HttpStatus.OK);
 	}
 	
 	@GetMapping(value="/login/{id}")
@@ -91,6 +108,7 @@ public class ClinicalCenterAdministratorController {
 		return new ResponseEntity<>(clinicsDTO, HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasRole('CLINICAL_CENTER_ADMIN')")
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<ClinicalCenterAdministratorDTO> getAdministrators(@PathVariable Long id) {
 
@@ -123,30 +141,47 @@ public class ClinicalCenterAdministratorController {
 	}
 	
 	@PostMapping(consumes = "application/json")
-	public ResponseEntity<ClinicalCenterAdministratorDTO> saveAdministrator(@RequestBody ClinicalCenterAdministratorDTO clinicDTO) {
+	public ResponseEntity<ClinicalCenterAdministratorDTO> saveAdministrator(@RequestBody ClinicalCenterAdministratorDTO adminDTO) {
 
+		User existUser = this.userService.findByUsername(adminDTO.getEmail());
+		if(existUser != null) {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
+		
 		ClinicalCenterAdministrator admin = new ClinicalCenterAdministrator();
-		admin.setId(222);
-		admin.setName(clinicDTO.getName());
-		admin.setSurname(clinicDTO.getSurname());
-		admin.setEmail(clinicDTO.getEmail());
-		admin.setPassword(clinicDTO.getPassword());
-		admin.setAdress(clinicDTO.getAdress());
-		admin.setCity(clinicDTO.getCity());
-		admin.setState(clinicDTO.getState());
-		admin.setPhone(clinicDTO.getPhone());
+		
+		admin.setName(adminDTO.getName());
+		admin.setSurname(adminDTO.getSurname());
+		admin.setEmail(adminDTO.getEmail());
+		admin.setPassword(adminDTO.getPassword());
+		admin.setAdress(adminDTO.getAdress());
+		admin.setCity(adminDTO.getCity());
+		admin.setState(adminDTO.getState());
+		admin.setPhone(adminDTO.getPhone());
 
 		
-		System.out.println("********* Prosledjeno ime administratora: " + clinicDTO.getName()+ " ***************");
-
-
+		System.out.println("********* Prosledjeno ime administratora: " + adminDTO.getName()+ " ***************");
 		
 		admin = service.save(admin);
+		
+		User newUser = new User();
+		newUser.setName(adminDTO.getName());
+		newUser.setSurname(adminDTO.getSurname());
+		newUser.setUsername(adminDTO.getEmail());
+		newUser.setPassword(adminDTO.getPassword());
+		newUser.setEnabled(true);
+		newUser.setLastPasswordResetDate(new Timestamp((new java.util.Date()).getTime()));
+		newUser.setRole("clinical_center_admin");
+		List<Authority> auths = authService.findByName("ROLE_CLINICAL_CENTER_ADMIN");
+		newUser.setAuthorities(auths);
+		newUser.setClinicalCenterAdministrator(admin);
+		
+		this.userService.save(newUser);
 		
 		List<ClinicalCenterAdministrator> administratoriIzBaze = service.findAll();
 		long id = 0;
 		for(ClinicalCenterAdministrator adm : administratoriIzBaze) {
-			if(adm.getEmail().equals(clinicDTO.getEmail())) {
+			if(adm.getEmail().equals(adminDTO.getEmail())) {
 				id = adm.getId();
 				System.out.println("Id novog administratora je: "+id);
 			}

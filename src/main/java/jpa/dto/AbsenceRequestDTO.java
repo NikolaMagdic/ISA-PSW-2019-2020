@@ -2,7 +2,7 @@ package jpa.dto;
 
 import java.sql.Date;
 
-import jpa.modeli.AbsenceRequest;
+import jpa.model.AbsenceRequest;
 
 public class AbsenceRequestDTO {
 	private Long id;

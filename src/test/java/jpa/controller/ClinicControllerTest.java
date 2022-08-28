@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import jpa.TestUtil;
-import jpa.modeli.Examination;
+import jpa.model.Examination;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class ClinicControllerTest {

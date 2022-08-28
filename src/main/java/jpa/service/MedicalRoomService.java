@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import jpa.modeli.MedicalRoom;
+import jpa.model.MedicalRoom;
 import jpa.repository.MedicalRoomRepository;
 
 @Service

@@ -1,6 +1,6 @@
 package jpa.dto;
 
-import jpa.modeli.Doctor;
+import jpa.model.Doctor;
 
 public class DoctorDTO {
 		

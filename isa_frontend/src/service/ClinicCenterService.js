@@ -4,10 +4,16 @@ import axios from "axios";
 
 class ClinicCenterService {
   retrieveAllClinics() {
-    return axios.get("http://localhost:8082/api/clinics/all", {withCredentials: true});
+    return axios({method: "GET",
+                  url: "http://localhost:8082/api/clinics/all",
+                  headers: {'Authorization': 'Bearer ' + localStorage.getItem('token')}
+                });
   }
   retrieveAllClinicsFiltered(date,type) {
-    return axios.get('http://localhost:8082/api/clinics/allFiltered/'+date+'/'+type, {withCredentials: true});
+    return axios({method: "GET",
+                  url: 'http://localhost:8082/api/clinics/allFiltered/'+date+'/'+type,
+                  headers: {'Authorization': 'Bearer ' + localStorage.getItem('token')}
+                });
 
   }
   retrieveClinic(id){
@@ -27,10 +33,12 @@ class ClinicCenterService {
   }
   retrieveDoctorsOfClinic(date,type,id){
     return  axios.get('http://localhost:8082/api/clinics/select/'+date+'/'+type+'/' + id,{withCredentials: true})
-}
-retrieveAllClinicsWherePatientWas() {
-  return axios.get("http://localhost:8082/api/clinics/allClinicsOfPatient", {withCredentials: true});
-}
+  }
+  retrieveAllClinicsWherePatientWas() {
+    return axios({method:"GET",
+                  url: "http://localhost:8082/api/clinics/allClinicsOfPatient",
+                  headers: {'Authorization': 'Bearer ' + localStorage.getItem('token')}});
+  }
 
 }
 

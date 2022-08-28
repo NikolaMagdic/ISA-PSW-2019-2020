@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,12 +25,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jpa.dto.ExaminationDTO;
-import jpa.modeli.Doctor;
-import jpa.modeli.Examination;
-import jpa.modeli.ExaminationType;
-import jpa.modeli.MedicalRoom;
-import jpa.modeli.Occupation;
-import jpa.modeli.Patient;
+import jpa.model.Doctor;
+import jpa.model.Examination;
+import jpa.model.ExaminationType;
+import jpa.model.MedicalRoom;
+import jpa.model.Occupation;
+import jpa.model.Patient;
 import jpa.service.DoctorService;
 import jpa.service.EmailService;
 import jpa.service.ExaminationService;
@@ -74,9 +75,11 @@ public class ExaminationController {
 		
 		return new ResponseEntity<>(examinationsDTO, HttpStatus.OK);
 	}
+	
+	@PreAuthorize("hasRole('PATIENT')")
 	@GetMapping(value = "/nonReserved")
-	public ResponseEntity<List<ExaminationDTO>> getAllNonReservedExaminations(HttpSession Session){
-		if(Session.getAttribute("role").equals("PATIENT")){
+	public ResponseEntity<List<ExaminationDTO>> getAllNonReservedExaminations(){
+		
 		List<Examination> examinations = examinationService.findAll();
 		
 		//convert examinations to DTOs
@@ -88,10 +91,7 @@ public class ExaminationController {
 		}
 		System.out.println(examinationsDTO.size());
 		return new ResponseEntity<>(examinationsDTO, HttpStatus.OK);
-		}
-		else{
-			return new ResponseEntity<>( HttpStatus.UNAUTHORIZED);
-		}
+
 	}
 	
 	

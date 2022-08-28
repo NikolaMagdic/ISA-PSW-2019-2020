@@ -10,13 +10,15 @@
         <li><router-link to="/examinationtypes">Examination Types</router-link></li>
         <li><router-link :to="{name: 'businessreport', params: { id: this.clinic_id}}">Business Report</router-link></li>  
         <li><router-link to="/absencerequests">Absence Requests</router-link></li>       
-        <li><router-link :to="{name: 'editclinicadmin', params: { id: this.$route.params.id }}">Edit personal profile</router-link></li>                
+        <li><router-link :to="{name: 'editclinicadmin', params: { id: this.$route.params.id }}">Edit personal profile</router-link></li>
+        <li class="logout"><router-link @click.native="logout" to="/logout">Logout</router-link></li>                
     </ul>
     </div>
 </template>
 
 <script>
-import Axios from 'axios';
+//import Axios from 'axios';
+import ClinicAdministratorService from '../service/ClinicAdministratorService'
 export default {
   name: "ClinicAdministratorHomePage",
   data() {
@@ -40,7 +42,7 @@ export default {
   },
   methods: {
     refreshAdministrator(){
-        Axios.get('http://localhost:8082/api/clinicalAdministrators/'+ this.$route.params.id).then(response => (this.administrator = response.data, this.clinic_id = response.data.clinic.id))
+        ClinicAdministratorService.retrieveAdministratorInformation(this.$route.params.id).then(response => (this.administrator = response.data, this.clinic_id = response.data.clinic.id))
         /* eslint-disable no-console */
         console.log("**************************")
         if(this.administrator.id == 1){
@@ -49,6 +51,10 @@ export default {
           console.log("Nije ni preuzeo podatke");
         }
 
+    },
+    logout() {
+      localStorage.removeItem('token');
+      this.$router.push('/');
     }
   },
   created() {
@@ -84,6 +90,10 @@ li a:hover {
   background-color: rgb(10, 78, 14);
   text-decoration: none;
   color: white;
+}
+
+li.logout {
+  float: right;
 }
 
 

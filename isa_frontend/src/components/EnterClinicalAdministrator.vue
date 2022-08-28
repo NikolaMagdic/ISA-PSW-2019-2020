@@ -92,36 +92,29 @@ export default {
     validateAndSubmit(e) {
     e.preventDefault();
     var temp={
-      "name":this.name,
-      "surname":this.surname,
-      "email":this.email,
-      "adress":this.adress,
+      "name": this.name,
+      "surname": this.surname,
+      "email": this.email,
+      "adress": this.adress,
       "password": this.password,
-      "city":this.city,
-      "state":this.state,
-      "phone":this.phone,
+      "city": this.city,
+      "state": this.state,
+      "phone": this.phone,
       "clinic":this.selectedClinic // dobro pronalazi kliniku na osnovu selektovane 
 
     }
     //var patientPom
     if(this.password==this.password2){
 
-        Axios.post(`http://localhost:8082/api/clinicalAdministrators`, temp); // ne stavlja kliniku unutar administratora
+        Axios.post(`http://localhost:8082/api/clinicalAdministrators`, temp).then({
+          
+        }); // ne stavlja kliniku unutar administratora
 
         /* eslint-disable no-console */
         console.log(this.selectedClinic.name)
 
     }
 
-    this.name = ""
-    this.surname = ""
-    this.email = ""
-    this.adress = ""
-    this.password = ""
-    this.password2 = ""
-    this.city = ""
-    this.state = ""
-    this.phone = ""
     
   }
 

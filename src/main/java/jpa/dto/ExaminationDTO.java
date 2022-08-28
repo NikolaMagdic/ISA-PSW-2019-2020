@@ -2,7 +2,7 @@ package jpa.dto;
 
 import java.sql.Date;
 
-import jpa.modeli.Examination;
+import jpa.model.Examination;
 
 public class ExaminationDTO {
 

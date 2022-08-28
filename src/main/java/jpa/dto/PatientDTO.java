@@ -1,10 +1,6 @@
 package jpa.dto;
 
-
-
-import javax.persistence.Column;
-
-import jpa.modeli.Patient;
+import jpa.model.Patient;
 
 public class PatientDTO {
 	private Long id;
@@ -37,7 +33,6 @@ public class PatientDTO {
 		
 		
 
-		
 		this.id=id2;
 		this.name=name2;
 		this.surname=surname2;
@@ -217,31 +212,38 @@ public class PatientDTO {
 	public void setAccepted(boolean accepted) {
 		this.accepted = accepted;
 	}
+	
 	public Integer getHeight() {
 		return height;
 	}
+	
 	public void setHeight(int height) {
 		this.height = height;
 	}
+	
 	public Integer getWeight() {
 		return weight;
 	}
+	
 	public void setWeight(int weight) {
 		this.weight = weight;
 	}
+	
 	public String getBloodType() {
 		return bloodType;
 	}
+	
 	public void setBloodType(String bloodType) {
 		this.bloodType = bloodType;
 	}
-
-
 	
-
-	
-	
-	
+	@Override
+	public String toString() {
+		return "PatientDTO [id=" + id + ", name=" + name + ", surname=" + surname + ", email=" + email + ", password="
+				+ password + ", adress=" + adress + ", city=" + city + ", state=" + state + ", phone=" + phone
+				+ ", lbo=" + lbo + ", validated=" + validated + ", accepted=" + accepted + ", height=" + height
+				+ ", weight=" + weight + ", bloodType=" + bloodType + "]";
+	}	
 	
 	
 	

@@ -1,4 +1,3 @@
-import axios from "axios"
 
 <template>
   <div class="container">
@@ -109,6 +108,13 @@ export default {
         name: "",
         surname: "",
         lbo: undefined,
+        email: "",
+        password: "",
+        password2: "",
+        adress: "",
+        city: "",
+        state: "",
+        phone: "",
         searchName: "",
         searchSurname: "",
         searchLBO: "",

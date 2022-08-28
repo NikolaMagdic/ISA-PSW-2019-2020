@@ -7,8 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import jpa.modeli.ClinicalAdministrator;
-import jpa.modeli.ClinicalCenterAdministrator;
+import jpa.model.ClinicalAdministrator;
 import jpa.repository.ClinicalAdministratorRepository;
 
 @Service
@@ -37,5 +36,8 @@ public class ClinicalAdministratorService {
 		repository.deleteById(id);
 	}
 	
+	public ClinicalAdministrator findOneByEmail(String email) {
+		return repository.findOneByEmail(email);
+	}
 	
 }

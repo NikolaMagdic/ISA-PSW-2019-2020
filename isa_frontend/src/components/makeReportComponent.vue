@@ -83,6 +83,7 @@ import axios from "axios";
 
 <script>
 import Axios from 'axios';
+import PatientService from '../service/PatientService';
 export default {
   name: "makeReport",
   data() {
@@ -117,12 +118,12 @@ export default {
       e.preventDefault();
 
       var temp={
-            "id": this.$route.params.id,
+            "id": this.patient.id,
             "weight":this.weight,
             "height": this.height,
             "bloodType":this.bloodType
       }
-    Axios.put(`http://localhost:8082/api/patients/updateMedicalRedord`, temp);
+      PatientService.updateMedicalRecord(temp);
 
     },
 

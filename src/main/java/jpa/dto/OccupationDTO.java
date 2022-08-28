@@ -2,9 +2,7 @@ package jpa.dto;
 
 import java.sql.Date;
 
-
-
-import jpa.modeli.Occupation;
+import jpa.model.Occupation;
 
 public class OccupationDTO {
 

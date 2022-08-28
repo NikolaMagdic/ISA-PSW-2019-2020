@@ -1,7 +1,7 @@
 package jpa.dto;
 
-import jpa.modeli.Diagnosis;
-import jpa.modeli.Patient;
+import jpa.model.Diagnosis;
+import jpa.model.Patient;
 
 public class DiagnosisDTO {
 	private long id;

@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import jpa.modeli.Patient;
+import jpa.model.Patient;
 
 public interface PatientRepository extends JpaRepository<Patient, Long>{
 
@@ -22,6 +22,7 @@ public interface PatientRepository extends JpaRepository<Patient, Long>{
 	
 	List<Patient> findByNameAndSurnameAllIgnoringCase(String name, String surname);
 
+	Patient findOneByEmail(String email);
 	
 	@Query("select p from Patient p where p.surname = ?1")
 	List<Patient> pronadjiPacijentePoPrezimenu(String prezime);

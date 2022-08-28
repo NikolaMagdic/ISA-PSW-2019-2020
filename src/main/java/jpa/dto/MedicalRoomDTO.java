@@ -2,7 +2,7 @@ package jpa.dto;
 
 import java.sql.Date;
 
-import jpa.modeli.MedicalRoom;
+import jpa.model.MedicalRoom;
 
 public class MedicalRoomDTO {
 

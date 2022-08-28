@@ -1,6 +1,6 @@
 package jpa.dto;
 
-import jpa.modeli.ClinicalAdministrator;
+import jpa.model.ClinicalAdministrator;
 
 public class ClinicalAdministratorDTO {
 

@@ -1,13 +1,15 @@
 package jpa.controller;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,26 +26,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-
 
 import jpa.dto.PatientDTO;
-import jpa.modeli.Patient;
+import jpa.model.Authority;
+import jpa.model.Patient;
+import jpa.model.User;
+import jpa.security.TokenUtils;
+import jpa.service.AuthorityService;
 import jpa.service.EmailService;
 import jpa.service.PatientService;
-
-
-import jpa.dto.PatientDTO;
-import jpa.modeli.Patient;
-import jpa.service.PatientService;
+import jpa.service.UserService;
 
 
 	@RestController
@@ -58,8 +50,24 @@ public class PatientController {
 		@Autowired
 		private PatientService patientService;
 
+		@Autowired
+		private UserService userService;
 		
+		@Autowired
+		private AuthorityService authService;
 		
+		@Autowired
+		private TokenUtils tokenUtils;
+		
+		@GetMapping(value = "/get-patient", produces = "application/json")
+		public ResponseEntity<PatientDTO> getPatient(HttpServletRequest request) {
+			String jwtToken = this.tokenUtils.getToken(request);
+			String username = tokenUtils.getUsernameFromToken(jwtToken);
+			
+			Patient patient = patientService.findOneByEmail(username);
+			PatientDTO patientDTO = new PatientDTO(patient);
+			return new ResponseEntity<>(patientDTO, HttpStatus.OK);
+		}
 		
 		
 		@GetMapping(value = "/all")
@@ -108,36 +116,36 @@ public class PatientController {
 
 		@GetMapping(value = "/{id}")
 		public ResponseEntity<PatientDTO> getPatient(@PathVariable Long id, HttpSession Session) {
-			System.out.println("ulazis u test?");
-
-			Patient Patient = patientService.findOne(id);
+			
+			Patient patient = patientService.findOne(id);
 
 			
-			if (Patient == null) {
+			if (patient == null) {
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			}
 			Session.setAttribute("role", "PATIENT");
 			Session.setAttribute("id",id);
 			System.out.println(Session.getAttribute("role"));
 			System.out.println(Session.getAttribute("id"));
-			return new ResponseEntity<>(new PatientDTO(Patient), HttpStatus.OK);
+			return new ResponseEntity<>(new PatientDTO(patient), HttpStatus.OK);
 		}
 		
 		
 		
 		@GetMapping(value = "/loggedPatient")
-		public ResponseEntity<PatientDTO> getLoggedPatient(HttpSession Session) {
+		public ResponseEntity<PatientDTO> getLoggedPatient(HttpServletRequest request) {
 			
-			System.out.println(Session.getAttribute("id"));
-			Patient Patient = patientService.findOne((Long)Session.getAttribute("id"));
-
+			String jwtToken = this.tokenUtils.getToken(request);
+			String username = tokenUtils.getUsernameFromToken(jwtToken);
 			
-			if (Patient == null) {
+			Patient patient = patientService.findOneByEmail(username);
+			
+			if (patient == null) {
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			}
 			
 		
-			return new ResponseEntity<>(new PatientDTO(Patient), HttpStatus.OK);
+			return new ResponseEntity<>(new PatientDTO(patient), HttpStatus.OK);
 		}
 		
 		/*@GetMapping(value = "/login")
@@ -161,39 +169,48 @@ public class PatientController {
 		@PostMapping(consumes = "application/json")
 		public ResponseEntity<PatientDTO> savePatient(@RequestBody PatientDTO patientDTO) {
 
-			Patient Patient = new Patient();
+			User existUser = this.userService.findByUsername(patientDTO.getEmail());
+			if(existUser != null) {
+				return new ResponseEntity<>(HttpStatus.CONFLICT);
+			}
+			
+			
+			Patient patient = new Patient();
 			
 			System.out.println("Novi pacijent: " + patientDTO.getName());
-			Patient.setId(111L);
-			Patient.setName(patientDTO.getName());
-			Patient.setSurname(patientDTO.getSurname());
-			Patient.setEmail(patientDTO.getEmail());
-			Patient.setPassword(patientDTO.getPassword());
-			Patient.setAdress(patientDTO.getAdress());
-			Patient.setCity(patientDTO.getCity());
-			Patient.setState(patientDTO.getState());
-			Patient.setPhone(patientDTO.getPhone());
-			Patient.setLbo(patientDTO.getLbo());
+			patient.setId(111L);
+			patient.setName(patientDTO.getName());
+			patient.setSurname(patientDTO.getSurname());
+			patient.setEmail(patientDTO.getEmail());
+			patient.setPassword(patientDTO.getPassword());
+			patient.setAdress(patientDTO.getAdress());
+			patient.setCity(patientDTO.getCity());
+			patient.setState(patientDTO.getState());
+			patient.setPhone(patientDTO.getPhone());
+			patient.setLbo(patientDTO.getLbo());
 			//Patient.setWeight(patientDTO.getWeight());
 			//Patient.setHeight(patientDTO.getHeight());
 			//Patient.setBloodType(patientDTO.getBloodType());
-			// for registration
-	/*		try{    
-				BufferedWriter out = new BufferedWriter( 
-		                   new FileWriter("C:\\Users\\Petar\\workspace1\\ISA-PSW-2019-2020\\src\\main\\resources\\data-postgres.sql", true)); 
-		            out.write(Patient.toString()+"\n"); 
-		            out.close();
-				//FileWriter fw=new FileWriter("C:\\Users\\Petar\\workspace1\\ISA-PSW-2019-2020\\src\\main\\resources\\data-postgres.sql");    
-				//fw.write(Patient.toString());    
-				//fw.close();    
-			}catch(Exception e){System.out.println(e);} */
-			Patient = patientService.save(Patient);
+
+			patient = patientService.save(patient);
 			
 			// slanje emaila je prebaceno u logiku za prihvatanje naloga
 
+			User newUser = new User();
+			newUser.setName(patientDTO.getName());
+			newUser.setSurname(patientDTO.getSurname());
+			newUser.setUsername(patientDTO.getEmail());
+			newUser.setPassword(patientDTO.getPassword());
+			newUser.setEnabled(true);
+			newUser.setLastPasswordResetDate(new Timestamp((new Date()).getTime()));
+			newUser.setRole("patient");
+			List<Authority> auths = authService.findByName("ROLE_PATIENT");
+			newUser.setAuthorities(auths);
+			newUser.setPatient(patient);
 			
+			this.userService.save(newUser);
 			
-			return new ResponseEntity<>(new PatientDTO(Patient), HttpStatus.CREATED);
+			return new ResponseEntity<>(new PatientDTO(patient), HttpStatus.CREATED);
 		}
 
 		@PostMapping(value = "/updatePatient", consumes = "application/json")
@@ -227,19 +244,19 @@ public class PatientController {
 		
 		@PutMapping(value = "/updateMedicalRedord", consumes = "application/json")
 		public ResponseEntity<PatientDTO> updateMedicalRecord(@RequestBody PatientDTO patientDTO) {
-
-			Patient Patient = patientService.findOne(patientDTO.getId());
-
-			if (Patient == null) {
+			
+			Patient patient = patientService.findOne(patientDTO.getId());
+				
+			if (patient == null) {
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
 
-			Patient.setWeight(patientDTO.getWeight());
-			Patient.setHeight(patientDTO.getHeight());
-			Patient.setBloodType(patientDTO.getBloodType());
+			patient.setWeight(patientDTO.getWeight());
+			patient.setHeight(patientDTO.getHeight());
+			patient.setBloodType(patientDTO.getBloodType());
 			
-			Patient = patientService.save(Patient);
-			return new ResponseEntity<>(new PatientDTO(Patient), HttpStatus.OK);
+			patient = patientService.save(patient);
+			return new ResponseEntity<>(new PatientDTO(patient), HttpStatus.OK);
 		}
 		
 

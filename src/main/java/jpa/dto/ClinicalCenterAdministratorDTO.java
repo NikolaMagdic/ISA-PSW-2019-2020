@@ -2,7 +2,7 @@ package jpa.dto;
 
 import javax.persistence.Column;
 
-import jpa.modeli.ClinicalCenterAdministrator;
+import jpa.model.ClinicalCenterAdministrator;
 
 public class ClinicalCenterAdministratorDTO {
 

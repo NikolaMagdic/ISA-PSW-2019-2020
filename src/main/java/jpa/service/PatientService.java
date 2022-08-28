@@ -1,14 +1,12 @@
 package jpa.service;
 import java.util.List;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import jpa.modeli.Patient;
+import jpa.model.Patient;
 import jpa.repository.PatientRepository;
 
 
@@ -29,8 +27,8 @@ public class PatientService {
 		return patientRepository.findAll(page);
 	}
 
-	public Patient save(Patient student) {
-		return patientRepository.save(student);
+	public Patient save(Patient patient) {
+		return patientRepository.save(patient);
 	}
 
 	public void remove(Long id) {
@@ -51,6 +49,10 @@ public class PatientService {
 	
 	public List<Patient> pronadjiPoPrezimenu(String prezime) {
 		return patientRepository.pronadjiPacijentePoPrezimenu(prezime);
+	}
+	
+	public Patient findOneByEmail(String email) {
+		return patientRepository.findOneByEmail(email);
 	}
 	
 }
