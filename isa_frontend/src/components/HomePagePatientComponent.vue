@@ -1,6 +1,13 @@
 Vue.use(Vuelidate);
 <template>
-  <div class="container">
+  <div>
+    <ul>
+        <li><router-link to="/examinationsPatient">Reserve an existing examination</router-link></li>
+        <li><router-link :to="{name: 'EditPersonalData', params: {id: this.id}}">Edit personal data</router-link></li>
+        <li><router-link to="/pretragaPatient">Clinic search</router-link></li>
+        <li><router-link to="/patientExaminations">History of examinations</router-link></li>
+        <li class="logout"><router-link @click.native="logout" to="/logout">Logout</router-link></li>
+    </ul>
     <h3>Rate Clinic</h3>
     <div class="container">
         <table class="table">
@@ -50,26 +57,6 @@ Vue.use(Vuelidate);
         </tbody>
       </table>
 
-
-      
-        <form @submit="instant">
-                <button class="btn btn-success" type="submit">Reserve an existing appointment </button>
-
-      </form>
-
-       <form @submit="val">
-                <button class="btn btn-success" type="submit">Edit personal data</button>
-
-      </form>
-      <form @submit.prevent="pretraga">
-                <button class="btn btn-success" type="submit">Clinic Search</button>
-
-      </form>
-      <form @submit.prevent="history">
-                <button class="btn btn-success" type="submit">History of appointments</button>
-
-      </form>
-      <button class="btn btn-success" v-on:click="logout()">Logout</button>
     </div>
 
     
@@ -147,27 +134,6 @@ export default {
         this.$router.push('/rateDoctor/?idDoctor='+id1,{withCredentials: true}) ;
       },
       
-
-
-      val(e){
-          e.preventDefault();
-          
-            this.$router.push('/EditPersonalData?') 
-
-      },
-      pretraga(e){
-          e.preventDefault();
-           
-            this.$router.push('/pretragaPatient') 
-
-      },
-      instant(e){
-        e.preventDefault();
-        this.$router.push('/examinationsPatient') 
-      },history(e){
-        e.preventDefault();
-        this.$router.push('/patientExaminations') 
-      },
       logout(){
         localStorage.removeItem('token');
         this.$router.push('/');
@@ -180,9 +146,45 @@ export default {
     this.refreshDoctors();
     
 
+  },
+
+  computed: {
+    id() {
+      return this.$route.params.id;
+    }
   }
 };
 </script>
 
 <style>
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: rgb(29, 168, 64);
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover {
+  background-color: rgb(0, 128, 43);
+  text-decoration: none;
+  color: white;
+}
+
+li.logout {
+  float: right;
+}
+
 </style>

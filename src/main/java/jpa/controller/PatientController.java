@@ -225,14 +225,12 @@ public class PatientController {
 
 			Patient.setName(patientDTO.getName());
 			Patient.setSurname(patientDTO.getSurname());
-			Patient.setEmail(patientDTO.getEmail());
 			Patient.setPassword(patientDTO.getPassword());
 			Patient.setAdress(patientDTO.getAdress());
 			Patient.setCity(patientDTO.getCity());
 			Patient.setState(patientDTO.getState());
 			Patient.setPhone(patientDTO.getPhone());
-			Patient.setLbo(patientDTO.getLbo());
-
+			
 			Patient.setWeight(patientDTO.getWeight());
 			Patient.setHeight(patientDTO.getHeight());
 			Patient.setBloodType(patientDTO.getBloodType());

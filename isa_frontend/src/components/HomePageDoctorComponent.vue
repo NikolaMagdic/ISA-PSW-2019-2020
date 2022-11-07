@@ -110,7 +110,7 @@ li a {
 }
 
 li a:hover {
-  background-color: rgb(10, 78, 14);
+  background-color: rgb(0, 128, 43);
   text-decoration: none;
   color: white;
 }

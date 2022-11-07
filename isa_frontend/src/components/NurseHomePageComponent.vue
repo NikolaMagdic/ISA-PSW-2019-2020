@@ -1,43 +1,14 @@
 <template>
-  <div class="container">
+  <div>
     
-    <div class="container">
-        <fieldset class="form-group">
-          <label>Name: </label>
-          <label> {{ this.sestra.name }} </label>
-        </fieldset>
-        <fieldset class="form-group">
-            <label>Surname: </label>
-          <label>{{ this.sestra.surname }}</label>
-        </fieldset>
-        <fieldset class="form-group">
-          <label>Email: </label>
-          <label>{{ this.sestra.email }}</label>
-        </fieldset>
-         <fieldset class="form-group">
-          <label>Password: </label>
-          <label>{{ this.sestra.password }}</label>
-        </fieldset>
-         <fieldset class="form-group">
-          <label>Adress: </label>
-          <label>{{ this.sestra.adress }}</label>
-        </fieldset>
-         <fieldset class="form-group">
-          <label>City: </label>
-          <label>{{ this.sestra.city }}</label>
-        </fieldset>
-         <fieldset class="form-group">
-          <label>State: </label>
-          <label>{{ this.sestra.state }}</label>
-        </fieldset>
-         <fieldset class="form-group">
-          <label>Phone: </label>
-          <label>{{ this.sestra.phone }}</label>
-        </fieldset>
-        <button v-on:click="editNurseClicked()">Change personal information</button>
-        <button v-on:click="createAbsenceRequestClicked()">Create absence request</button>
-        <button v-on:click="logout()">Logout</button>
-    </div>
+    <div>
+        <ul>
+          <li><router-link :to="{name: 'editnurse', params: this.$route.params.id, withCredentials: true}">Change personal information</router-link></li>
+          <li><router-link :to="{name: 'addabsencerequestnurse', params: this.$route.params.id}">Create absence request</router-link></li>
+          <li class="logout"><router-link @click.native="logout" to="/logout">Logout</router-link></li>
+        </ul>
+      </div>
+
 
     <h3>All non validated prescriptions</h3>
     <div class="container">
@@ -104,12 +75,6 @@ export default {
       this.refreshPrescriptions
       this.$forceUpdate();
     },
-    editNurseClicked(){
-      this.$router.push(`/editnurse/${this.$route.params.id}`, {withCredentials: true});
-    },
-    createAbsenceRequestClicked(){
-      this.$router.push(`/addabsencerequestnurse/${this.$route.params.id}`);
-    },
     logout() {
       localStorage.removeItem('token');
       this.$router.push('/');
@@ -130,4 +95,34 @@ export default {
 </script>
 
 <style>
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: rgb(29, 168, 64);
+  }
+
+  li {
+    float: left;
+  }
+
+  li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+  }
+
+  li a:hover {
+    background-color: rgb(0, 128, 43);
+    text-decoration: none;
+    color: white;
+  }
+
+  li.logout {
+    float: right;
+  }
+
 </style>

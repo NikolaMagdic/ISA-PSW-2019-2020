@@ -1,38 +1,23 @@
 <template>
 
 
-  <div class="container">
+  <div>
 
-    
-    <button @click="()=>$router.push('/EnterClinicalCenterAdministrator')">Add administrator of clinical center  </button>
-    <br>
-    <br>
-    <button @click="()=>$router.push(`/EnterClinicalAdministrator`)"> Add clinical administrator </button>
-    <br>
-    <br>
-    <button @click="()=>$router.push('/clinics')"> Add clinic  </button>
-    <br>
-    <br>
-    <button @click="()=>$router.push('/doctors')"> Add doctor  </button>
-    <br>
-    <br>
-    <button @click="()=>$router.push('/medicalRooms')"> Add rooms  </button>
-    <br>
-    <br>
-    <button @click="()=>$router.push('/examinationtypes')"> View and manage examination types </button>
-    <br>
-    <br>
-    <button @click="()=>$router.push('/absencerequests')"> Respond to existing absence requests </button>
-    <br>
-    <br>
-    <button @click="()=>$router.push(`/editadministrator/${this.$route.params.id}`)"> Change personal information </button>
-    <br>
-    <br>
-    <button @click="logout()">Logout</button>
-    <br>
-
-    <br>
-    
+    <nav>
+      <div>
+      <ul>
+        <li><router-link to="/EnterClinicalCenterAdministrator">Add administrator of clinical center </router-link></li>
+        <li><router-link to="/EnterClinicalAdministrator"> Add clinical administrator </router-link></li>
+        <li><router-link to="/clinics"> Clinics </router-link></li>
+        <li><router-link to="/doctors"> Doctors  </router-link></li>
+        <li><router-link to="/medicalRooms"> Rooms </router-link></li>
+        <li><router-link to="/examinationtypes"> View and manage examination types </router-link></li>
+        <li><router-link to="/absencerequests"> Respond to existing absence requests </router-link></li>
+        <li><router-link :to="{name: 'editadministrator', params: { id: this.$route.params.id}}"> Change personal information </router-link></li>
+        <li class="logout"><router-link @click.native="logout" to="/logout">Logout</router-link></li>
+      </ul>
+    </div>
+    </nav>
 
     <h3>All non accepted patients</h3>
     <div class="container">
@@ -45,7 +30,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="patient in nonAcceptedPatients" v-bind:key="patient.id">
+          <tr v-for="(patient, index) in nonAcceptedPatients" v-bind:key="patient.id">
             <td>{{patient.id}}</td>
             <td>{{patient.name}}</td>
             <td>{{patient.surname}}</td>
@@ -56,11 +41,11 @@
             </td>
 
             <td>
-              <form @submit="deletePatient(patient.id, poruka)">
+              <form @submit="deletePatient(patient.id, this.messages[index])">
                   <button class="btn btn-success" type = "submit">Reject</button>
                   
                   <label> Reason: </label>
-                  <input type="text" class="form-control" v-model="poruka" required>
+                  <input type="text" class="form-control" v-model="messages[index]" required>
                </form>
             </td>
             
@@ -93,9 +78,8 @@ export default {
           state: '',
           phone: 0,
           validated: true,
-          poruka: ''
         },
-        message: null,
+        messages: [],
     };
   },
   methods: {
@@ -107,19 +91,18 @@ export default {
         ClinicCenterAdministratorService.retrieveAdministratorInformation(this.$route.params.id).then(response => (this.administrator = response.data))
         /* eslint-disable no-console */
         console.log("**************************")
+        console.log(this.administrator);
         if(this.administrator.id == 1){
             console.log("Ima samo nece da ispise");
         } else{
           console.log("Nije ni preuzeo podatke");
         }
     },
-    deletePatient(index, poruka){
-    /* eslint-disable no-console */
-    console.log('Brisanje pacijenta'+index + poruka);
-    var message = poruka
-    Axios.put('http://localhost:8082/api/patients/rejectPatient/' + index + "/" + message)
-    this.refreshPatients();
-
+    deletePatient(index, message){
+      /* eslint-disable no-console */
+      console.log('Brisanje pacijenta' + index + message);
+      Axios.put('http://localhost:8082/api/patients/rejectPatient/' + index + "/" + message)
+      this.refreshPatients();
     },
     acceptPatient(index){
       /* eslint-disable no-console */
@@ -143,5 +126,34 @@ export default {
 <style>
 @import url(https://unpkg.com/bootstrap@4.1.0/dist/css/bootstrap.min.css);
 
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: rgb(29, 168, 64);
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover {
+  background-color: rgb(0, 128, 43);
+  text-decoration: none;
+  color: white;
+}
+
+li.logout {
+  float: right;
+}
 
 </style>

@@ -3,7 +3,7 @@ import axios from "axios"
 <template>
   <div class="container">
     <div>
-    <h3>Edit Personal data</h3>
+    <h3>Search clinics</h3>
     <div class="container">
       <form @submit.prevent="filter()">
         <fieldset class="form-group">

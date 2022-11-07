@@ -24,7 +24,7 @@ const router = new Router({
     },
     {
       path: "/patientExaminations",
-      name: "requestPatientt",
+      name: "requestPatient",
       component: () => import("./components/listPatientExaminations")                 
       
     },
@@ -178,7 +178,7 @@ const router = new Router({
     }, 
     {
       path: "/editadministrator/:id",
-      name: "EditAdministratorComponent",
+      name: "editadministrator",
       component: () => import("./components/EditAdministratorComponent")
     }, 
     {
@@ -228,7 +228,7 @@ const router = new Router({
       name: "patients",
       component: () => import("./components/ListPatientsComponent")                  
     },
-    // This component sees clinic admin when doctor send him a request for examination
+    // Clinic admin sees this component when doctor sends him a request for examination
     {
       path: '/bookExaminationRoom/:examinationId',
       name: 'bookExaminationRoom',
@@ -251,7 +251,7 @@ const router = new Router({
     },
     {
       path: "/registerPatient",
-      name: "businessreport",
+      name: "registerPatient",
       component: () => import("./components/RegisterPatient")
     }  
   ]

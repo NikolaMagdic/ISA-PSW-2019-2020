@@ -119,13 +119,10 @@ public class NurseContoller {
 		return new ResponseEntity<>(new NurseDTO(nurse), HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('NURSE', 'CLINICALADMINISTRATOR', 'CLINICAL_ADMIN', 'CLINICAL_CENTER_ADMIN')")
 	@PutMapping(consumes = "application/json")
-	public ResponseEntity<NurseDTO> updateNurse(@RequestBody NurseDTO nurseDTO, HttpSession session){
-		if( !(session.getAttribute("role").equals("NURSE") || session.getAttribute("role").equals("DOCTOR") 
-				|| session.getAttribute("role").equals("PATIENT") || session.getAttribute("role").equals("CLINICALADMINISTRATOR") 
-				|| session.getAttribute("role").equals("CLINICALCENTERADMINISTRATOR") )) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+	public ResponseEntity<NurseDTO> updateNurse(@RequestBody NurseDTO nurseDTO){
+
 		Nurse nurse = nurseService.findOne(nurseDTO.getId());
 		
 		if(nurse == null) {

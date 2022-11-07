@@ -1,10 +1,10 @@
 <template>
 
 
-  <div class="container">
+  <div>
 
     <ul>
-        <li><router-link to="/clinics">Clinics</router-link></li>
+        <li><router-link :to="{name: 'editclinic', params: {id: this.$route.params.id}}">My Clinic</router-link></li>
         <li><router-link to="/doctors">Doctors</router-link></li>
         <li><router-link to="/medicalRooms">Medical Rooms</router-link></li> 
         <li><router-link to="/examinationtypes">Examination Types</router-link></li>
@@ -13,12 +13,13 @@
         <li><router-link :to="{name: 'editclinicadmin', params: { id: this.$route.params.id }}">Edit personal profile</router-link></li>
         <li class="logout"><router-link @click.native="logout" to="/logout">Logout</router-link></li>                
     </ul>
-    </div>
+  </div>
 </template>
 
 <script>
 //import Axios from 'axios';
-import ClinicAdministratorService from '../service/ClinicAdministratorService'
+import ClinicAdministratorService from '../service/ClinicAdministratorService';
+import ClinicCenterService from '../service/ClinicCenterService';
 export default {
   name: "ClinicAdministratorHomePage",
   data() {
@@ -42,7 +43,9 @@ export default {
   },
   methods: {
     refreshAdministrator(){
-        ClinicAdministratorService.retrieveAdministratorInformation(this.$route.params.id).then(response => (this.administrator = response.data, this.clinic_id = response.data.clinic.id))
+        ClinicAdministratorService.retrieveAdministratorInformation(this.$route.params.id).then(response => {this.administrator = response.data, 
+                                                                                                            this.clinic_id = response.data.clinic.id
+                                                                                                            this.retrieveClinic(this.clinic_id)});
         /* eslint-disable no-console */
         console.log("**************************")
         if(this.administrator.id == 1){
@@ -52,14 +55,17 @@ export default {
         }
 
     },
+    retrieveClinic() {
+      ClinicCenterService.retrieveClinic(this.clinic_id);
+    },
     logout() {
       localStorage.removeItem('token');
       this.$router.push('/');
     }
   },
+
   created() {
     this.refreshAdministrator();
-    this.retrieveClinic();
   }
   
 }
@@ -87,7 +93,7 @@ li a {
 }
 
 li a:hover {
-  background-color: rgb(10, 78, 14);
+  background-color: rgb(0, 128, 43);
   text-decoration: none;
   color: white;
 }

@@ -13,9 +13,9 @@
         </fieldset>
         <button class="btn btn-success" type="submit">Login</button>
       </form>
+      <br>
       <form @submit="val">
-                <button class="btn btn-success" type="submit">Register</button>
-
+          <button class="btn btn-success" type="submit">Register</button>
       </form>
     </div>
   </div>
